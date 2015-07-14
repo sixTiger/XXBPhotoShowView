@@ -1,2 +1,2 @@
 # XXBPhotoShowView
-# 照片浏览框架
+# 照片缩放框架
