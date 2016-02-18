@@ -29,7 +29,7 @@
     } else {
         imageSize = CGSizeMake(imageSize.width / heightRatio, imageSize.height / heightRatio);
     }
-    
+
     return imageSize;
 }
 
@@ -45,7 +45,14 @@
 
 - (CGSize)contentSize
 {
-    return [self.image sizeThatFits:self.bounds.size];
+    if(self.image == nil)
+    {
+        return self.bounds.size;
+    }
+    else
+    {
+        return [self.image sizeThatFits:self.bounds.size];
+    }
 }
 
 @end
@@ -77,19 +84,34 @@
     [self setupRotationNotification];
     
 }
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self) {
-        self.delegate = self;
-        self.bouncesZoom = YES;
+    if (self = [super initWithFrame:frame]) {
+        [self p_setup];
     }
     return self;
 }
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        [self p_setup];
+    }
+    return self;
+}
+
+- (void)p_setup
+{
+    self.delegate = self;
+    self.bouncesZoom = YES;
+    self.alwaysBounceHorizontal = YES;
+    self.alwaysBounceVertical = YES;
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    
     if (self.rotating)
     {
         self.rotating = NO;
@@ -103,14 +125,15 @@
         { // 宽度或高度 都小于 self 的宽度和高度
             self.zoomScale = minZoomScale;
         }
-        // Center container view
         [self centerContent];
     }
 }
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
 - (UIImageView *)imageView
 {
     if (_imageView == nil) {
@@ -131,6 +154,7 @@
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
                                                object:nil];
 }
+
 - (void)setupGestureRecognizer
 {
     UITapGestureRecognizer *doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapHandler:)];
@@ -147,6 +171,7 @@
 {
     return self.imageView;
 }
+
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
 {
     [self centerContent];
@@ -160,6 +185,7 @@
     });
     [self performSelector:@selector(singleTapAction) withObject:nil afterDelay:0.5];
 }
+
 - (void)singleTapAction
 {
     NSLog(@"单击了");
@@ -192,6 +218,7 @@
 {
     self.rotating = YES;
 }
+
 #pragma mark - Helper
 
 - (void)setMaxMinZoomScale
@@ -202,6 +229,7 @@
     self.maximumZoomScale = MAX(1, maxScale);
     self.minimumZoomScale = 1.0;
 }
+
 - (void)centerContent
 {
     CGRect frame = self.imageView.frame;
