@@ -51,12 +51,12 @@
 @end
 
 
-@interface XXBPhotoShowView ()
+@interface XXBPhotoShowView ()<UIScrollViewDelegate>
 
 @property (nonatomic, weak)     UIImageView *imageView;
 @property (nonatomic , assign)  BOOL    rotating;
 @property (nonatomic , assign)  CGSize  minSize;
-@property (nonatomic , assign)  BOOL    singleTap;
+
 @end
 
 @implementation XXBPhotoShowView
@@ -83,7 +83,6 @@
     if (self) {
         self.delegate = self;
         self.bouncesZoom = YES;
-        self.singleTap = YES;
     }
     return self;
 }
@@ -155,21 +154,21 @@
 #pragma mark - 手势处理
 - (void)singleTapHandler:(UITapGestureRecognizer *)recognizer
 {
+    recognizer.enabled = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        recognizer.enabled = YES;
+    });
     [self performSelector:@selector(singleTapAction) withObject:nil afterDelay:0.5];
 }
 - (void)singleTapAction
 {
-    if (!self.singleTap)
-    {
-        self.singleTap = YES;
-        return;
-    }
-    NSLog(@"单击了 双击了");
+    NSLog(@"单击了");
 }
 //手势
 - (void)doubleTapHandler:(UITapGestureRecognizer *)recognizer
 {
-    self.singleTap = NO;
+
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     NSLog(@"双击了");
     if (self.zoomScale > self.minimumZoomScale)
     {
